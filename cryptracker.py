@@ -14,9 +14,7 @@ from telegram.ext import CommandHandler, MessageHandler, Filters
 
 import time
 def start(update, context):
-    while(True):
-        context.bot.send_message(chat_id=update.message.chat_id, text=cg.get_price(ids='bitcoin', vs_currencies='usd'))
-        time.sleep(3)
+    context.bot.send_message(chat_id=update.message.chat_id, text="Hellooo!!")
 
 def caps(update, context):
     text_caps = ' '.join(context.args).upper()
@@ -27,13 +25,20 @@ def unknown(update, context):
 
 chat_id_ = []
 
-def daily_job(bot, update, job_queue):
+def daily_job(update, context):
     """ Running on Mon, Tue, Wed, Thu, Fri = tuple(range(5)) """
-    print("are we?")
-    chat_id_ = update.message.chat_id
-    bot.send_message(chat_id=update.message.chat_id, text='Setting a daily notifications!')
-    t = datetime.time(10, 00, 00, 000000)
-    job_queue.run_repeating(notify_assignees, interval = 3, context=update)
+    # bot.send_message(chat_id=update.message.chat_id, text='Setting a daily notifications!')
+    # t = datetime.time(10, 00, 00, 000000)
+    # job_queue.run_repeating(notify_assignees, interval = 3, context=update)
+    new_job = context.job_queue.run_repeating(alarm, 3, context=update.message.chat_id)
+    context.chat_data['job'] = new_job
+
+    update.message.reply_text('Timer successfully set!')
+
+def alarm(context):
+    """Send the alarm message."""
+    job = context.job
+    context.bot.send_message(job.context, text=cg.get_price(ids='bitcoin', vs_currencies='usd'))
 
 def notify_assignees(bot, job):
     bot.send_message(chat_id=chat_id_, text="Some text!")
